@@ -35,7 +35,7 @@ Para actualizar el stack de CloudFormation con la plantilla `infra.yml`, puedes 
 
 ```bash
 aws cloudformation update-stack \
-	--stack-name gabriel-654654327431 \
+	--stack-name andres-rodriguez-654654327431 \
 	--template-body file://infra.yml \
 	--region us-east-1 \
 	--output json \
