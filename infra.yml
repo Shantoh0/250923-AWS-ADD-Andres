@@ -1,75 +1,34 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
-  Infraestructura mínima en AWS para Andres. Incluye EC2, IAM Role y buenas prácticas.
+  Infraestructura mínima en AWS para instancia EC2 en VPC por defecto, siguiendo requerimientos del README.md.
 
-# -------------------
-# Parámetros y Mappings
-# -------------------
 Parameters:
-  DefaultVpcId:
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: 'ami-039a65ec6bd28e541'
+    Description: 'AMI más reciente de Amazon Linux 2023.'
+  VpcId:
     Type: String
-    Default: vpc-086fe118b4ed5c6e4
-    Description: VPC por defecto para todos los recursos
-
-  # Se puede parametrizar la IP permitida si se requiere acceso restringido
-  AllowedSSHLocation:
+    Default: 'vpc-086fe118b4ed5c6e4'
+    Description: 'ID de la VPC por defecto.'
+  SubnetId:
     Type: String
-    Default: 0.0.0.0/0
-    Description: Rango de IPs permitidas para acceso (ajustar según necesidad)
+    Description: 'ID de la subred pública en la VPC por defecto.'
+  InstanceType:
+    Type: String
+    Default: 't3.micro'
+    Description: 'Tipo de instancia EC2.'
+  InstanceName:
+    Type: String
+    Default: 'andresr-awshero'
+    Description: 'Nombre de la instancia EC2.'
+  SecurityGroupId:
+    Type: String
+    Description: 'ID del grupo de seguridad por defecto de la VPC.'
 
-Mappings:
-  RegionMap:
-    # Amazon Linux 2023 AMI IDs por región (ejemplo, actualizar según región real)
-    us-east-1:
-      AMI: ami-0c101f26f147fa7fd
-    us-west-2:
-      AMI: ami-0e472ba40eb589f49
-    eu-west-1:
-      AMI: ami-0aef57767f5404a3c
-
-# -------------------
-# Recursos
-# -------------------
 Resources:
-  # Instancia EC2 en subred pública de la VPC por defecto
-  AndresEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t3.micro
-      ImageId:
-        Fn::FindInMap:
-          - RegionMap
-          - Ref: AWS::Region
-          - AMI
-      SubnetId:
-        Fn::Select:
-          - 0
-          - Fn::GetAZs: ''
-      # Se asume que la primera subred pública está en la lista de subredes de la VPC por defecto
-      SecurityGroupIds:
-        - Ref: DefaultSecurityGroup
-      IamInstanceProfile: !Ref EC2InstanceProfile
-      Tags:
-        - Key: Name
-          Value: andres-rodriguez-654654327431
-    # Comentario: Instancia EC2 sin par de llaves SSH
-
-  # Grupo de seguridad por defecto de la VPC
-  DefaultSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Acceso mínimo para EC2 Andres
-      VpcId: !Ref DefaultVpcId
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref AllowedSSHLocation
-      # Limitar puertos según necesidad
-    # Comentario: Grupo de seguridad por defecto, solo permite SSH desde IPs permitidas
-
   # Rol IAM mínimo para EC2
-  EC2InstanceRole:
+  Ec2InstanceRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -79,37 +38,38 @@ Resources:
             Principal:
               Service: ec2.amazonaws.com
             Action: sts:AssumeRole
-      Path: "/"
-      Policies:
-        - PolicyName: EC2MinimalPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ec2:Describe*
-                Resource: '*'
-    # Comentario: Rol IAM con privilegios mínimos para EC2
+      Path: '/'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore # Permiso mínimo para administración
 
-  # Instance Profile para asociar el rol a la instancia
-  EC2InstanceProfile:
+  Ec2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      Path: "/"
       Roles:
-        - Ref: EC2InstanceRole
-    # Comentario: Instance Profile para EC2
+        - !Ref Ec2InstanceRole
 
-# -------------------
-# Salidas
-# -------------------
+
+  # Instancia EC2 en VPC por defecto
+  Ec2Gabriel:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: !Ref LatestAmiId
+      IamInstanceProfile: !Ref Ec2InstanceProfile
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref SubnetId
+          GroupSet:
+            - !Ref SecurityGroupId
+      Tags:
+        - Key: Name
+          Value: !Ref InstanceName
+
 Outputs:
-  InstanceId:
-    Description: ID de la instancia EC2 creada
-    Value: !Ref AndresEC2Instance
-  InstancePublicIp:
-    Description: IP pública de la instancia EC2
-    Value: !GetAtt AndresEC2Instance.PublicIp
-  InstanceRole:
-    Description: Nombre del rol IAM asociado a la instancia
-    Value: !Ref EC2InstanceRole 
+  Ec2InstanceId:
+    Description: "ID de la instancia EC2 creada."
+    Value: !Ref Ec2Andres
+  Ec2PublicIp:
+    Description: "IP pública de la instancia EC2."
+    Value: !GetAtt Ec2Andres.PublicIp
