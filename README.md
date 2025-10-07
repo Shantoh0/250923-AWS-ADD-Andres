@@ -27,13 +27,9 @@
 	- Documentar cada recurso con comentarios en la plantilla.
 	- Validar la plantilla con herramientas como `cfn-lint` antes de su despliegue.
 
----
 
-## Ejemplo de actualización del stack con AWS CLI
+1. Para crear el stack de CloudFormation con la plantilla `infra.yml`, puedes usar el siguiente comando:
 
-Para actualizar el stack de CloudFormation con la plantilla `infra.yml`, puedes usar el siguiente comando:
-
-```bash
 aws cloudformation create-stack \
 	--stack-name andres-rodriguez-654654327431 \
 	--template-body file://infra.yml \
@@ -46,5 +42,37 @@ aws cloudformation create-stack \
 		ParameterKey=SubnetId,ParameterValue=subnet-0f86fb485374f9f0a \
 		ParameterKey=InstanceType,ParameterValue=t3.micro \
 		ParameterKey=SecurityGroupId,ParameterValue=sg-04f4c192bcfcf3f2b
+
+2. Actualizacion del Stack por medio de comando:
+
+## Ejemplo de actualización del nombre del stack con AWS CLI
+
+aws cloudformation update-stack \
+  --stack-name andres-rodriguez-654654327431 \
+  --template-body file://infra.yml \
+  --region us-east-1 \
+  --output json \
+  --capabilities CAPABILITY_IAM \
+  --parameters \
+    ParameterKey=SubnetId,UsePreviousValue=true \
+    ParameterKey=SecurityGroupId,UsePreviousValue=true \
+    ParameterKey=VpcId,UsePreviousValue=true \
+    ParameterKey=InstanceType,UsePreviousValue=true \
+    ParameterKey=InstanceName,ParameterValue=andres-rodriguez
+
+## Ejemplo de actualización del procesador t3 de micro a medium con AWS CLI
+
+aws cloudformation update-stack \
+  --stack-name andres-rodriguez-654654327431 \
+  --template-body file://infra.yml \
+  --region us-east-1 \
+  --output json \
+  --capabilities CAPABILITY_IAM \
+  --parameters \
+    ParameterKey=SubnetId,UsePreviousValue=true \
+    ParameterKey=SecurityGroupId,UsePreviousValue=true \
+    ParameterKey=VpcId,UsePreviousValue=true \
+    ParameterKey=InstanceName,UsePreviousValue=true \
+    ParameterKey=InstanceType,ParameterValue=t3.medium
 
 > **Nota:** Ajusta los parámetros según corresponda a tu entorno y necesidades.
