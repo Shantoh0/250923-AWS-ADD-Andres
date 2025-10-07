@@ -4,8 +4,8 @@ Description: >
 
 Parameters:
   LatestAmiId:
-    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
-    Default: 'ami-039a65ec6bd28e541'
+    Type: String
+    Default: 'ami-0227cf16615e396af' # ID AMI mas reciente
     Description: 'AMI más reciente de Amazon Linux 2023.'
   VpcId:
     Type: String
@@ -20,7 +20,7 @@ Parameters:
     Description: 'Tipo de instancia EC2.'
   InstanceName:
     Type: String
-    Default: 'andresr-awshero'
+    Default: 'andres-rodriguez'
     Description: 'Nombre de la instancia EC2.'
   SecurityGroupId:
     Type: String
@@ -69,7 +69,7 @@ Resources:
 Outputs:
   Ec2InstanceId:
     Description: "ID de la instancia EC2 creada."
-    Value: !Ref Ec2Andres
+    Value: !Ref Ec2Gabriel
   Ec2PublicIp:
     Description: "IP pública de la instancia EC2."
-    Value: !GetAtt Ec2Andres.PublicIp
+    Value: !GetAtt Ec2Gabriel.PublicIp
