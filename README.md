@@ -34,18 +34,17 @@
 Para actualizar el stack de CloudFormation con la plantilla `infra.yml`, puedes usar el siguiente comando:
 
 ```bash
-aws cloudformation update-stack \
+aws cloudformation create-stack \
 	--stack-name andres-rodriguez-654654327431 \
 	--template-body file://infra.yml \
-	--region us-east-1 \
-	--output json \
 	--capabilities CAPABILITY_IAM \
+	--region us-east-1 \
+	--profile default \
+	--output json \
 	--parameters \
-		ParameterKey=SubnetId,UsePreviousValue=true \
-		ParameterKey=SecurityGroupId,UsePreviousValue=true \
-		ParameterKey=VpcId,UsePreviousValue=true \
-		ParameterKey=InstanceName,UsePreviousValue=true \
-		ParameterKey=InstanceType,ParameterValue=t3.medium
-```
+		ParameterKey=VpcId,ParameterValue=vpc-086fe118b4ed5c6e4 \
+		ParameterKey=SubnetId,ParameterValue=subnet-0f86fb485374f9f0a \
+		ParameterKey=InstanceType,ParameterValue=t3.micro \
+		ParameterKey=SecurityGroupId,ParameterValue=sg-04f4c192bcfcf3f2b
 
 > **Nota:** Ajusta los parámetros según corresponda a tu entorno y necesidades.
